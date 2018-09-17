@@ -15,6 +15,7 @@ struct http_service {
     struct event_base *ebase;
     struct event *ev_sigterm;
     struct event *ev_sigint;
+    const char *resolver;
     worker_t **workers;
     io_channel_t **listeners;
     list_t *sessions;
@@ -88,9 +89,11 @@ http_service_listener_start(void *ctx)
 }
 
 int
-http_service_init(int nworkers, struct sockaddr_storage *sockaddr)
+http_service_init(int nworkers, struct sockaddr_storage *sockaddr, const char *resolver)
 {
     worker_init();
+
+    http_service.resolver = resolver;
 
 	http_service.sessions = list_new();
 	
@@ -150,7 +153,7 @@ http_service_init(int nworkers, struct sockaddr_storage *sockaddr)
     http_service.workers = workers;
 
     for (int i = 0; i < nworkers; ++i) {
-        workers[i] = worker_new(listeners[i]);
+        workers[i] = worker_new(listeners[i], resolver);
         if (NULL == workers[i]) {
             goto error;
         }

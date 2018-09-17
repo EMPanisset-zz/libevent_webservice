@@ -13,7 +13,7 @@ void
 worker_fini(void);
 
 worker_t *
-worker_new(void *ctx);
+worker_new(void *ctx, const char *resolver);
 
 void
 worker_free(worker_t *worker);

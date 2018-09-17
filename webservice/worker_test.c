@@ -33,7 +33,7 @@ main(int argc, char **argv)
     worker_init();
 
 	for (int i = 0; i < countof(workers); ++i) {
-		workers[i] = worker_new(&counter[i]);
+		workers[i] = worker_new(&counter[i], "8.8.8.8:53");
         worker_set_prologue(workers[i], prologue);
         worker_set_epilogue(workers[i], epilogue);
 		worker_start(workers[i]);

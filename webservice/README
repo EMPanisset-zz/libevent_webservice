@@ -20,9 +20,9 @@ binary file "tigera_webservice" should be created in the challenge1 directory.
 You can start server by specifying local address and local port to bind,
 as well as number of worker threads:
 
-./tigera_webserver -a <address> -p <port> -n <number of workers> -d <turns into a daemon>
+./tigera_webserver -a <address> -p <port> -n <number of workers> -d <turns into a daemon> -r <dnsserver ip:port>
 
-default values are respectivelly "127.0.0.1" (any address), 5000, 4, and no daemon.
+default values are respectivelly "127.0.0.1" (any address), 5000, 4, no daemon, and "8.8.8.8:53"
 
 Note: You would need to be root to be able to open low ports (below 1024).
 

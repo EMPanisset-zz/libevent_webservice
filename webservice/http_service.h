@@ -10,10 +10,11 @@
  *
  * @param nworkers # worker threads
  * @param sockaddr listening address and port for workers
+ * @param resolver dnsserver address and port (format "0.0.0.0:0")
  * @return 0, if successfull. 0, otherwise.
  */
 int
-http_service_init(int nworkers, struct sockaddr_storage *sockaddr);
+http_service_init(int nworkers, struct sockaddr_storage *sockaddr, const char *resolver);
 
 /**
  * Start http worker threads defined by

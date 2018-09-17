@@ -76,7 +76,7 @@ worker_fini(void)
 }
 
 worker_t *
-worker_new(void *ctx)
+worker_new(void *ctx, const char *resolver)
 {
     worker_t *worker = calloc(1, sizeof(worker_t));
     if (NULL != worker) {
@@ -97,8 +97,8 @@ worker_new(void *ctx)
         }
         worker->dnsbase = dnsbase;
 
-        if (evdns_base_nameserver_ip_add(dnsbase, "8.8.8.8") < 0) {
-            fprintf(stderr, "%s: error setting dnsserver to 8.8.8.8:53\n", __func__);
+        if (evdns_base_nameserver_ip_add(dnsbase, resolver) < 0) {
+            fprintf(stderr, "%s: error setting dnsserver to %s\n", __func__, resolver);
             goto error;
         }
         
