@@ -22,7 +22,7 @@ as well as number of worker threads:
 
 ./tigera_webserver -a <address> -p <port> -n <number of workers> -d <turns into a daemon> -r <dnsserver ip:port>
 
-default values are respectivelly "127.0.0.1" (any address), 5000, 4, no daemon, and "8.8.8.8:53"
+default values are respectivelly "127.0.0.1" (localhost), 5000, 4, no daemon, and "8.8.8.8:53"
 
 Note: You would need to be root to be able to open low ports (below 1024).
 
