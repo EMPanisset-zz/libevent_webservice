@@ -1,0 +1,55 @@
+diff --git a/http_parser.c b/http_parser.c
+index 5b5657b..4ab74ad 100644
+--- a/http_parser.c
++++ b/http_parser.c
+@@ -2415,6 +2415,21 @@ http_body_is_final(const struct http_parser *parser) {
+     return parser->state == s_message_done;
+ }
+ 
++int
++http_url_is_final(const struct http_parser *parser) {
++    return parser->state == s_req_http_start || parser->state == s_req_line_almost_done || parser->state == s_header_field_start;
++}
++
++int
++http_header_field_is_final(const struct http_parser *parser) {
++    return parser->state == s_header_value_discard_ws;
++}
++
++int
++http_header_value_is_final(const struct http_parser *parser) {
++    return parser->state == s_header_almost_done || parser->state == s_header_field_start;
++}
++
+ unsigned long
+ http_parser_version(void) {
+   return HTTP_PARSER_VERSION_MAJOR * 0x10000 |
+diff --git a/http_parser.h b/http_parser.h
+index 1fbf30e..1423c62 100644
+--- a/http_parser.h
++++ b/http_parser.h
+@@ -27,7 +27,7 @@ extern "C" {
+ /* Also update SONAME in the Makefile whenever you change these. */
+ #define HTTP_PARSER_VERSION_MAJOR 2
+ #define HTTP_PARSER_VERSION_MINOR 8
+-#define HTTP_PARSER_VERSION_PATCH 0
++#define HTTP_PARSER_VERSION_PATCH 1
+ 
+ #include <stddef.h>
+ #if defined(_WIN32) && !defined(__MINGW32__) && \
+@@ -427,6 +427,15 @@ void http_parser_pause(http_parser *parser, int paused);
+ /* Checks if this is the final chunk of the body. */
+ int http_body_is_final(const http_parser *parser);
+ 
++/* Checks if this is the final chunk of url. */
++int http_url_is_final(const http_parser *parser);
++
++/* Checks if this is the final chunk of header field. */
++int http_header_field_is_final(const http_parser *parser);
++
++/* Checks if this is the final chunk of header value. */
++int http_header_value_is_final(const http_parser *parser);
++
+ #ifdef __cplusplus
+ }
+ #endif

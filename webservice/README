@@ -1,0 +1,73 @@
+INSTALLING DEPENDENCIES 
+
+In order to build Tigera webserver commands below should be executed in the parent
+directory of webservice:
+
+sudo apt-get install autogen automake autotools-dev autoconf libtool
+
+./install_dependencies
+
+BUILDING
+
+In the webservice directory execute:
+
+make clean; make
+
+EXECUTING
+
+binary file "tigera_webservice" should be created in the challenge1 directory.
+
+You can start server by specifying local address and local port to bind,
+as well as number of worker threads:
+
+./server -a <address> -p <port> -n <number of workers> -d <turns into a daemon>
+
+default values are respectivelly "127.0.0.1" (any address), 5000, 4, and no daemon.
+
+Note: You would need to be root to be able to open low ports (below 1024).
+
+ARCHITECUTRE
+
+This http server is a multi-threaded asynchronous service based on largely used and scalable libevent library.
+
+The service starts a configurable number of threads (this number should be proportional to the number of host
+processors), listening to the same TCP port and running on their own libevent loop.
+
+Accepting sockets are load balanced among listening threads by Linux kernel in an efficient manner by making setting
+listening sockets with SO_REUSEPORT socket option (please see this article for details https://lwn.net/Articles/542629/)
+
+
+                                   +-----------------+      <<notifies>>
+                                   |   io_service    |---------------------+
+                                +->|  <<interface>>  |<-+                  |
+                 <<implements>> |  +-----------------+  | <<implements>>   |
+                                |                       |                  |
+                           +--------------+     +--------------+     +------------+
+ +------+ 1   +------+ *   |              |     |              |     |            |
+ |thread|<----|worker|<----| http_service |     | http_session |     | io_channel |
+ +------+     +------+     |              |     |              |     |            |
+                 |         +--------------+     +--------------+     +------------+
+                 |              |      |                ^                  ^ 
+                 |              |      |                | 3                | <<is>>
+                 |              |      |        +--------------+           |
+                 |              |      |      * |   session    |           |
+                 |              |      +------->|              |           |
+                 |              |               +--------------+           |
+                 |              |                                          |
+                 |              |          listeners                 +------------+ 
+                 |              +----------------------------------->| tcp_socket |<-----+
+                 |                                                   +------------+      |
+                 |   <<starts>>   +----------+                                           |
+                 +--------------->|event_base|-------------------------------------------+
+                                  +----------+          <<notifies>
+
+ 
+BOTTLENECKS OF THIS SOLUTION
+
+Sessions were stored in a list instead of in a hashtable to allow us gracefully stop service by removing
+all session currently being processed. This list introduces O(n) processing time whenever sessions are destroyed
+during service execution. By usign a hashtable and tracking session by 5-tuple fields
+(src addr, src port, dst addr, dst port, proto) whe would reduce this running time to O(1).
+
+Scalability could also be addressed by making service run on additional nodes in the system and partitioning
+users by using distributed hash tables.
